@@ -351,6 +351,14 @@ class _RecipeResultsPageState extends State<RecipeResultsPage> {
                 width: 100,
                 height: 100,
                 fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  // Instead of showing an error icon or warning, return a Wi-Fi off icon
+                  return Icon(
+                    Icons.wifi_off,
+                    size: 100,
+                    color: Colors.grey,
+                  );
+                },
               ),
               SizedBox(width: 16),
               Expanded(
@@ -414,6 +422,14 @@ class RecipeDetailPage extends StatelessWidget {
                 width: double.infinity,
                 height: 250,
                 fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  // Instead of showing an error icon or warning, return a Wi-Fi off icon
+                  return Icon(
+                    Icons.wifi_off,
+                    size: 100,
+                    color: Colors.grey,
+                  );
+                },
               ),
               SizedBox(height: 16),
               Text(
