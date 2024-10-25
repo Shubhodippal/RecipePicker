@@ -32,7 +32,6 @@ class RecipePickerPage extends StatefulWidget {
   @override
   _RecipePickerPageState createState() => _RecipePickerPageState();
 }
-
 class _RecipePickerPageState extends State<RecipePickerPage> {
   final List<String> courses = [
     'Side Dish',
@@ -58,22 +57,63 @@ class _RecipePickerPageState extends State<RecipePickerPage> {
     'Indo Chinese',
     'Fusion',
     'Continental',
-    'Middle Eastern'];
+    'Middle Eastern'
+  ];
 
-  final List<String> diets = [
+  // Define all valid diets and filter based on invalid combinations
+  final List<String> allDiets = [
     'Vegetarian',
     'No Onion No Garlic (Sattvic)',
-    'Non Vegeterian',
+    'Non Vegetarian',
     'Eggetarian',
     'Diabetic Friendly',
     'Gluten Free',
     'Vegan'
   ];
 
+  // Updated mapping with valid diets for each cuisine and course
+  final Map<String, Map<String, List<String>>> validDietsForCourseCuisine = {
+    'Side Dish': {
+      'Indian': ['Vegetarian', 'No Onion No Garlic (Sattvic)', 'Non Vegetarian', 'Eggetarian', 'Diabetic Friendly', 'Vegan'],
+      'North Indian': ['Vegetarian', 'No Onion No Garlic (Sattvic)', 'Non Vegetarian', 'Diabetic Friendly'],
+      'South Indian': ['Vegetarian', 'No Onion No Garlic (Sattvic)', 'Non Vegetarian', 'Eggetarian', 'Diabetic Friendly', 'Vegan'],
+      'East Indian': ['Vegetarian', 'No Onion No Garlic (Sattvic)', 'Non Vegetarian', 'Diabetic Friendly'],
+      'West Indian': ['Vegetarian', 'Non Vegetarian', 'Eggetarian', 'Diabetic Friendly'],
+      'Other Regional Indian': ['Vegetarian', 'No Onion No Garlic (Sattvic)', 'Non Vegetarian'],
+      'Asian': ['Vegetarian', 'Diabetic Friendly'],
+      'Mughlai': ['Vegetarian', 'Non Vegetarian'],
+      'Parsi': ['Vegetarian'],
+      'Continental': ['Vegetarian'],
+    },
+    'Appetizer': {
+      'Indian': ['Vegetarian', 'No Onion No Garlic (Sattvic)', 'Non Vegetarian', 'Eggetarian', 'Diabetic Friendly', 'Vegan', 'Gluten Free'],
+      'North Indian': ['Vegetarian', 'No Onion No Garlic (Sattvic)', 'Non Vegetarian', 'Eggetarian', 'Diabetic Friendly', 'Vegan', 'Gluten Free'],
+      'South Indian': ['Vegetarian', 'No Onion No Garlic (Sattvic)', 'Non Vegetarian', 'Eggetarian', 'Diabetic Friendly', 'Vegan', 'Gluten Free'],
+      'West Indian': ['Vegetarian', 'No Onion No Garlic (Sattvic)', 'Non Vegetarian', 'Eggetarian', 'Diabetic Friendly', 'Vegan', 'Gluten Free'],
+      'Other Regional Indian': ['Vegetarian', 'No Onion No Garlic (Sattvic)', 'Non Vegetarian', 'Eggetarian', 'Diabetic Friendly', 'Vegan', 'Gluten Free'],
+      'Asian': ['Vegetarian', 'No Onion No Garlic (Sattvic)', 'Non Vegetarian', 'Eggetarian', 'Diabetic Friendly', 'Vegan', 'Gluten Free'],
+      'Mughlai': ['Vegetarian', 'No Onion No Garlic (Sattvic)', 'Non Vegetarian', 'Eggetarian', 'Diabetic Friendly', 'Vegan', 'Gluten Free'],
+      'Parsi': ['Vegetarian', 'No Onion No Garlic (Sattvic)', 'Non Vegetarian', 'Eggetarian', 'Diabetic Friendly', 'Vegan', 'Gluten Free'],
+      'Indo Chinese': ['Vegetarian', 'No Onion No Garlic (Sattvic)', 'Non Vegetarian', 'Eggetarian', 'Diabetic Friendly', 'Vegan', 'Gluten Free'],
+      'Fusion': ['Vegetarian', 'No Onion No Garlic (Sattvic)', 'Non Vegetarian', 'Eggetarian', 'Diabetic Friendly', 'Vegan', 'Gluten Free'],
+      'Continental': ['Vegetarian', 'No Onion No Garlic (Sattvic)', 'Non Vegetarian', 'Eggetarian', 'Diabetic Friendly', 'Vegan', 'Gluten Free'],
+      'Middle Eastern': ['Vegetarian', 'No Onion No Garlic (Sattvic)', 'Non Vegetarian', 'Eggetarian', 'Diabetic Friendly', 'Vegan', 'Gluten Free'],
+    },
+  };
+
   String? selectedCourse;
   String? selectedCuisine;
   String? selectedDiet;
-  double maxCookingTime = 600;  // Default value
+  double maxCookingTime = 600; // Default value
+
+  List<String> availableDiets = [];
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize available diets with all diets
+    availableDiets = List.from(allDiets);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,6 +140,9 @@ class _RecipePickerPageState extends State<RecipePickerPage> {
               _buildDropdownButton(courses, selectedCourse, 'Choose Course', (newValue) {
                 setState(() {
                   selectedCourse = newValue;
+                  availableDiets = [];
+                  selectedCuisine = null; // Reset cuisine and diet selections
+                  selectedDiet = null;
                 });
               }),
               SizedBox(height: 16),
@@ -109,13 +152,20 @@ class _RecipePickerPageState extends State<RecipePickerPage> {
               _buildDropdownButton(cuisines, selectedCuisine, 'Choose Cuisine', (newValue) {
                 setState(() {
                   selectedCuisine = newValue;
+                  // Update available diets based on selected course and cuisine
+                  if (selectedCourse != null && newValue != null) {
+                    availableDiets = validDietsForCourseCuisine[selectedCourse]?[newValue] ?? [];
+                  } else {
+                    availableDiets = List.from(allDiets);
+                  }
+                  selectedDiet = null; // Reset selected diet
                 });
               }),
               SizedBox(height: 16),
 
               Text('Select Diet:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               SizedBox(height: 8),
-              _buildDropdownButton(diets, selectedDiet, 'Choose Diet', (newValue) {
+              _buildDropdownButton(availableDiets, selectedDiet, 'Choose Diet', (newValue) {
                 setState(() {
                   selectedDiet = newValue;
                 });
