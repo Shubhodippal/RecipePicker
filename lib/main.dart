@@ -41,81 +41,31 @@ class _RecipePickerPageState extends State<RecipePickerPage> {
     'Lunch',
     'Dinner',
     'Dessert',
-    'Indian Breakfast',
-    'North Indian Breakfast',
-    'South Indian Breakfast',
-    'World Breakfast',
-    'One Pot Dish',
-    'Snack',
-    'Brunch'
+    'Breakfast',
+    'Snack'
   ];
 
   final List<String> cuisines = [
     'Indian',
-    'North Indian Recipes',
-    'Mangalorean',
-    'Kerala Recipes',
-    'Konkan',
-    'South Indian Recipes',
-    'Tamil Nadu',
-    'Bengali Recipes',
-    'Andhra',
-    'Coorg',
-    'Hyderabadi',
-    'Kashmiri',
-    'Punjabi',
-    'Gujarati Recipes',
-    'Coastal Karnataka',
-    'Karnataka',
-    'Goan Recipes',
-    'Sichuan',
-    'Udupi',
-    'Chettinad',
-    'Maharashtrian Recipes',
-    'Mughlai',
-    'Malvani',
-    'North East India Recipes',
-    'Rajasthani',
-    'Parsi Recipes',
-    'Bihari',
-    'Awadhi',
-    'North Karnataka',
-    'Assamese',
-    'Pakistani',
-    'Himachal',
-    'Oriya Recipes',
-    'Uttarakhand-North Kumaon',
-    'Lucknowi',
-    'Sindhi',
-    'Indo Chinese',
-    'Uttar Pradesh',
-    'Kongunadu',
-    'Chinese',
-    'Haryana',
-    'South Karnataka',
-    'Fusion',
-    'Malabar',
-    'Nepalese',
-    'Continental',
-    'Jharkhand',
-    'Middle Eastern',
-    'Sri Lankan',
-    'Thai',
-    'Arab',
-    'Nagaland',
-    'Afghan',
+    'North Indian',
+    'South Indian',
+    'East Indian',
+    'West Indian',
+    'Other Regional Indian',
     'Asian',
-    'Gujarati Recipes'
-  ];
+    'Mughlai',
+    'Parsi',
+    'Indo Chinese',
+    'Fusion',
+    'Continental',
+    'Middle Eastern'];
 
   final List<String> diets = [
     'Vegetarian',
-    'High Protein Non Vegetarian',
     'No Onion No Garlic (Sattvic)',
     'Non Vegeterian',
     'Eggetarian',
     'Diabetic Friendly',
-    'High Protein Vegetarian',
     'Gluten Free',
     'Vegan'
   ];
@@ -123,7 +73,7 @@ class _RecipePickerPageState extends State<RecipePickerPage> {
   String? selectedCourse;
   String? selectedCuisine;
   String? selectedDiet;
-  double maxCookingTime = 55;  // Default value
+  double maxCookingTime = 600;  // Default value
 
   @override
   Widget build(BuildContext context) {
@@ -280,7 +230,7 @@ class _RecipeResultsPageState extends State<RecipeResultsPage> {
   }
 
   Future<void> _loadCSV() async {
-    final rawData = await rootBundle.loadString('assets/R.csv');
+    final rawData = await rootBundle.loadString('assets/modified_file.csv');
     List<List<dynamic>> listData = const CsvToListConverter().convert(rawData);
 
     // Filter the recipes based on user selection and cooking time
