@@ -3,10 +3,12 @@ import 'package:csv/csv.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
 void main() {
-  runApp(RecipePickerApp());
+  runApp(const RecipePickerApp());
 }
 
 class RecipePickerApp extends StatelessWidget {
+  const RecipePickerApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -17,21 +19,24 @@ class RecipePickerApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSwatch().copyWith(
           secondary: Colors.orangeAccent,
         ),
-        textTheme: TextTheme(
+        textTheme: const TextTheme(
           bodyMedium: TextStyle(color: Colors.black87),
           titleLarge: TextStyle(color: Colors.white),
           labelLarge: TextStyle(color: Colors.white, fontSize: 16),
         ),
       ),
-      home: RecipePickerPage(),
+      home: const RecipePickerPage(),
     );
   }
 }
 
 class RecipePickerPage extends StatefulWidget {
+  const RecipePickerPage({super.key});
+
   @override
   _RecipePickerPageState createState() => _RecipePickerPageState();
 }
+
 class _RecipePickerPageState extends State<RecipePickerPage> {
   final List<String> courses = [
     'Side Dish',
@@ -60,7 +65,6 @@ class _RecipePickerPageState extends State<RecipePickerPage> {
     'Middle Eastern'
   ];
 
-  // Define all valid diets and filter based on invalid combinations
   final List<String> allDiets = [
     'Vegetarian',
     'No Onion No Garlic (Sattvic)',
@@ -71,7 +75,17 @@ class _RecipePickerPageState extends State<RecipePickerPage> {
     'Vegan'
   ];
 
-  // Updated mapping with valid diets for each cuisine and course
+  final Map<String, List<String>> courseCuisines = {
+    "Side Dish": ["Indian", "North Indian", "South Indian", "East Indian", "West Indian", "Other Regional Indian", "Asian", "Mughlai", "Parsi", "Continental"],
+    "Appetizer": ["Indian", "North Indian", "South Indian", "East Indian", "West Indian", "Other Regional Indian", "Asian"],
+    "Main Course": ["Indian", "North Indian", "South Indian", "East Indian", "West Indian", "Other Regional Indian", "Asian", "Mughlai", "Parsi"],
+    "Lunch": ["Indian", "North Indian", "South Indian", "East Indian", "West Indian", "Other Regional Indian", "Asian", "Mughlai", "Parsi", "Indo Chinese", "Continental", "Middle Eastern"],
+    "Dinner": ["Indian", "North Indian", "South Indian", "East Indian", "West Indian", "Other Regional Indian", "Asian", "Mughlai", "Parsi", "Fusion", "Middle Eastern"],
+    "Dessert": ["Indian", "North Indian", "South Indian", "East Indian", "West Indian", "Other Regional Indian", "Asian", "Mughlai", "Parsi", "Fusion", "Middle Eastern"],
+    "Breakfast": ["Indian", "North Indian", "South Indian", "East Indian", "West Indian", "Other Regional Indian", "Parsi", "Indo Chinese", " Fusion", " Continental"],
+    "Snack": ["Indian", "North Indian", "South Indian", "East Indian", "West Indian", "Other Regional Indian", "Asian", "Parsi", "Fusion"],
+  };
+
   final Map<String, Map<String, List<String>>> validDietsForCourseCuisine = {
     'Side Dish': {
       'Indian': ['Vegetarian', 'No Onion No Garlic (Sattvic)', 'Non Vegetarian', 'Eggetarian', 'Diabetic Friendly', 'Vegan'],
@@ -173,14 +187,14 @@ class _RecipePickerPageState extends State<RecipePickerPage> {
   String? selectedCourse;
   String? selectedCuisine;
   String? selectedDiet;
-  double maxCookingTime = 600; // Default value
+  double maxCookingTime = 600;
 
+  List<String> availableCuisines = [];
   List<String> availableDiets = [];
 
   @override
   void initState() {
     super.initState();
-    // Initialize available diets with all diets
     availableDiets = List.from(allDiets);
   }
 
@@ -188,15 +202,14 @@ class _RecipePickerPageState extends State<RecipePickerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Recipe Picker', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+        title: const Text('Recipe Picker', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.green[800],
       ),
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.green[100]!, Colors.green[50]!],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/background.png'),
+            fit: BoxFit.cover,
           ),
         ),
         child: Padding(
@@ -204,50 +217,47 @@ class _RecipePickerPageState extends State<RecipePickerPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Select Course:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              SizedBox(height: 8),
+              const Text('Select Course:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
               _buildDropdownButton(courses, selectedCourse, 'Choose Course', (newValue) {
                 setState(() {
                   selectedCourse = newValue;
-                  availableDiets = [];
-                  selectedCuisine = null; // Reset cuisine and diet selections
+                  selectedCuisine = null;
                   selectedDiet = null;
+                  availableCuisines = courseCuisines[selectedCourse] ?? [];
+                  availableDiets = List.from(allDiets);
                 });
               }),
-              SizedBox(height: 16),
-
-              Text('Select Cuisine:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              SizedBox(height: 8),
-              _buildDropdownButton(cuisines, selectedCuisine, 'Choose Cuisine', (newValue) {
+              const SizedBox(height: 16),
+              const Text('Select Cuisine:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              _buildDropdownButton(availableCuisines, selectedCuisine, 'Choose Cuisine', (newValue) {
                 setState(() {
                   selectedCuisine = newValue;
-                  // Update available diets based on selected course and cuisine
                   if (selectedCourse != null && newValue != null) {
                     availableDiets = validDietsForCourseCuisine[selectedCourse]?[newValue] ?? [];
                   } else {
                     availableDiets = List.from(allDiets);
                   }
-                  selectedDiet = null; // Reset selected diet
+                  selectedDiet = null;
                 });
               }),
-              SizedBox(height: 16),
-
-              Text('Select Diet:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              SizedBox(height: 8),
+              const SizedBox(height: 16),
+              const Text('Select Diet:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
               _buildDropdownButton(availableDiets, selectedDiet, 'Choose Diet', (newValue) {
                 setState(() {
                   selectedDiet = newValue;
                 });
               }),
-              SizedBox(height: 32),
-
-              Text('Select Maximum Cooking Time (minutes):', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              SizedBox(height: 8),
+              const SizedBox(height: 32),
+              const Text('Select Maximum Cooking Time (minutes):', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
               Slider(
                 value: maxCookingTime,
-                min: 1,
+                min: 10,
                 max: 600,
-                divisions: 300,
+                divisions: 118,
                 label: maxCookingTime.round().toString(),
                 onChanged: (double value) {
                   setState(() {
@@ -255,8 +265,7 @@ class _RecipePickerPageState extends State<RecipePickerPage> {
                   });
                 },
               ),
-              SizedBox(height: 32),
-
+              const SizedBox(height: 32),
               Center(
                 child: ElevatedButton(
                   onPressed: selectedCourse != null && selectedCuisine != null && selectedDiet != null
@@ -275,13 +284,19 @@ class _RecipePickerPageState extends State<RecipePickerPage> {
                   }
                       : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orangeAccent,
-                    padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                    backgroundColor: Colors.green,
+                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(18),
                     ),
                   ),
-                  child: Text('Find Recipes', style: TextStyle(fontSize: 18)),
+                  child: const Text(
+                    'Find Recipes',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.black, // Set text color to black
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -293,11 +308,11 @@ class _RecipePickerPageState extends State<RecipePickerPage> {
 
   Widget _buildDropdownButton(List<String> items, String? selectedItem, String hint, ValueChanged<String?> onChanged) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
             color: Colors.black12,
             blurRadius: 4,
@@ -309,7 +324,7 @@ class _RecipePickerPageState extends State<RecipePickerPage> {
         value: selectedItem,
         hint: Text(hint),
         isExpanded: true,
-        underline: SizedBox(),
+        underline: const SizedBox(),
         items: items.map((String value) {
           return DropdownMenuItem<String>(
             value: value,
@@ -328,7 +343,7 @@ class RecipeResultsPage extends StatefulWidget {
   final String selectedDiet;
   final int maxCookingTime;
 
-  RecipeResultsPage({
+  const RecipeResultsPage({super.key,
     required this.selectedCourse,
     required this.selectedCuisine,
     required this.selectedDiet,
@@ -358,7 +373,7 @@ class _RecipeResultsPageState extends State<RecipeResultsPage> {
       return recipe[4] == widget.selectedCourse && // COURSE column
           recipe[3] == widget.selectedCuisine && // CUISINE column
           recipe[5] == widget.selectedDiet && // DIET column
-          cookingTime >= 1 && cookingTime <= widget.maxCookingTime; // Cooking time condition
+          cookingTime >= 10 && cookingTime <= widget.maxCookingTime; // Cooking time condition
     }).toList();
 
     setState(() {
@@ -370,7 +385,7 @@ class _RecipeResultsPageState extends State<RecipeResultsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Recipe Results', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+        title: const Text('Recipe Results', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.green[800],
       ),
       body: Padding(
@@ -382,7 +397,7 @@ class _RecipeResultsPageState extends State<RecipeResultsPage> {
             return _buildRecipeCard(_recipes[index]);
           },
         )
-            : Center(
+            : const Center(
           child: Text(
             'No recipes found for your selection.',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -404,13 +419,14 @@ class _RecipeResultsPageState extends State<RecipeResultsPage> {
               description: recipe[2].toString(), // DESCRIPTION column
               ingredients: recipe[8].toString(), // INGREDIENTS column
               instructions: recipe[7].toString(), // INSTRUCTIONS column
-              time: recipe[6].toString(),
+              time: recipe[6]+10, // TIME column
+              origin: recipe[9].toString(), // ORIGIN column
             ),
           ),
         );
       },
       child: Card(
-        margin: EdgeInsets.symmetric(vertical: 8),
+        margin: const EdgeInsets.symmetric(vertical: 8),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Row(
@@ -422,23 +438,38 @@ class _RecipeResultsPageState extends State<RecipeResultsPage> {
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   // Instead of showing an error icon or warning, return a Wi-Fi off icon
-                  return Icon(
+                  return const Icon(
                     Icons.wifi_off,
                     size: 100,
                     color: Colors.grey,
                   );
                 },
               ),
-              SizedBox(width: 16),
+              const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       recipe[0].toString(), // NAME column
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          const TextSpan(
+                            text: 'Cooking Time: ', //TIME column
+                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
+                          TextSpan(
+                            text: '${recipe[6]+10} (minutes)',
+                            style: const TextStyle(fontSize: 20),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
                     Text(
                       recipe[2].toString(), // DESCRIPTION column
                       style: TextStyle(color: Colors.grey[600]),
@@ -462,22 +493,24 @@ class RecipeDetailPage extends StatelessWidget {
   final String description;
   final String ingredients;
   final String instructions;
-  var time;
+  final String origin;
+  final int time;
 
-  RecipeDetailPage({
+  RecipeDetailPage({super.key,
     required this.name,
     required this.imageUrl,
     required this.description,
     required this.ingredients,
     required this.instructions,
     required this.time,
+    required this.origin,
   });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(name, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+        title: Text(name, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.green[800],
       ),
       body: SingleChildScrollView(
@@ -493,37 +526,74 @@ class RecipeDetailPage extends StatelessWidget {
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   // Instead of showing an error icon or warning, return a Wi-Fi off icon
-                  return Icon(
+                  return const Icon(
                     Icons.wifi_off,
                     size: 100,
                     color: Colors.grey,
                   );
                 },
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
+              Text(name, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 16),
+              Text.rich(
+                TextSpan(
+                  children: [
+                    const TextSpan(
+                      text: 'Cooking Time: ',
+                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                    ),
+                    TextSpan(
+                      text: '$time minutes',
+                      style: const TextStyle(fontSize: 20),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text.rich(
+                TextSpan(
+                  children: [
+                    const TextSpan(
+                      text: 'Origin: ',
+                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                    ),
+                    TextSpan(
+                      text: origin,
+                      style: const TextStyle(fontSize: 20),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Description:',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
               Text(
                 description,
-                style: TextStyle(fontSize: 18),
+                style: const TextStyle(fontSize: 20),
               ),
-              SizedBox(height: 16),
-              Text(
+              const SizedBox(height: 16),
+              const Text(
                 'Ingredients:',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
                 ingredients,
-                style: TextStyle(fontSize: 16),
+                style: const TextStyle(fontSize: 20),
               ),
-              SizedBox(height: 16),
-              Text(
+              const SizedBox(height: 16),
+              const Text(
                 'Instructions:',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
                 instructions,
-                style: TextStyle(fontSize: 16),
+                style: const TextStyle(fontSize: 20),
               ),
             ],
           ),
