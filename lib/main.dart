@@ -373,7 +373,7 @@ class _RecipeResultsPageState extends State<RecipeResultsPage> {
       return recipe[4] == widget.selectedCourse && // COURSE column
           recipe[3] == widget.selectedCuisine && // CUISINE column
           recipe[5] == widget.selectedDiet && // DIET column
-          cookingTime >= 10 && cookingTime <= widget.maxCookingTime; // Cooking time condition
+          cookingTime >= 10 && cookingTime+10 <= widget.maxCookingTime; // Cooking time condition
     }).toList();
 
     setState(() {
