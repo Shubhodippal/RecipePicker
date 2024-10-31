@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:csv/csv.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:http/http.dart' as http;
+
 
 void main() {
   runApp(const RecipePickerApp());
@@ -93,9 +95,9 @@ class _RecipePickerPageState extends State<RecipePickerPage> {
       'South Indian': ['Vegetarian', 'No Onion No Garlic (Sattvic)', 'Non Vegetarian', 'Eggetarian', 'Diabetic Friendly', 'Vegan'],
       'East Indian': ['Vegetarian', 'No Onion No Garlic (Sattvic)', 'Non Vegetarian', 'Diabetic Friendly'],
       'West Indian': ['Vegetarian', 'Non Vegetarian', 'Eggetarian', 'Diabetic Friendly'],
-      'Other Regional Indian': ['Vegetarian', 'No Onion No Garlic (Sattvic)', 'Non Vegetarian'],
+      'Other Regional Indian': ['Vegetarian'],
       'Asian': ['Vegetarian', 'Diabetic Friendly'],
-      'Mughlai': ['Vegetarian', 'Non Vegetarian'],
+      'Mughlai': ['Vegetarian'],
       'Parsi': ['Vegetarian'],
       'Continental': ['Vegetarian'],
     },
