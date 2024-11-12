@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:csv/csv.dart';
-//import 'recipe_detail_page.dart';
+import 'dart:convert';  // For encoding and decoding JSON
+import 'package:http/http.dart' as http;
 
 class RecipeResultsPage extends StatefulWidget {
   final String selectedCourse;
