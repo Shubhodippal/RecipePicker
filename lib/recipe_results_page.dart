@@ -1,8 +1,6 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
-import 'package:csv/csv.dart';
-import 'dart:convert';  // For encoding and decoding JSON
+import 'dart:convert'; // For encoding and decoding JSON
 import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
 
 class RecipeResultsPage extends StatefulWidget {
   final String selectedCourse;
@@ -23,40 +21,58 @@ class RecipeResultsPage extends StatefulWidget {
 }
 
 class _RecipeResultsPageState extends State<RecipeResultsPage> {
-  List<List<dynamic>> _recipes = [];
+  List<dynamic> _recipes = [];
+  bool _isLoading = false;
+  String _errorMessage = '';
+
+  Future<void> _fetchRecipes() async {
+    final url = 'https://recipe.shubhodip.in/filter.php'; // API endpoint
+    final Map<String, String> body = {
+      'course': widget.selectedCourse,
+      'cuisine': widget.selectedCuisine,
+      'diet': widget.selectedDiet,
+      'prep_time': widget.maxCookingTime.toString(),
+    };
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = '';
+    });
+
+    try {
+      final response = await http.post(Uri.parse(url), body: body);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          if (data is List) {
+            _recipes = data;
+          } else {
+            _errorMessage = data['message'] ?? 'No recipes found.';
+            _recipes = [];
+          }
+        });
+      } else {
+        setState(() {
+          _errorMessage = 'Failed to fetch recipes. Status code: ${response.statusCode}';
+          _recipes = [];
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'An error occurred: $e';
+        _recipes = [];
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    _loadCSV();
-  }
-
-  Future<void> _loadCSV() async {
-    try {
-      print('Attempting to load CSV file...');
-      final rawData = await rootBundle.loadString('assets/modified_file.csv');
-      print('CSV file loaded successfully.');
-      
-      List<List<dynamic>> listData = const CsvToListConverter().convert(rawData);
-      print('CSV data converted successfully.');
-
-      // Filter recipes based on user selection and cooking time
-      List<List<dynamic>> filteredRecipes = listData.where((recipe) {
-        int cookingTime = int.tryParse(recipe[6].toString()) ?? 0; // Cooking time in 6th column
-        return recipe[4] == widget.selectedCourse &&
-            recipe[3] == widget.selectedCuisine &&
-            recipe[5] == widget.selectedDiet &&
-            cookingTime <= widget.maxCookingTime;
-      }).toList();
-
-      print('Filtered recipes: ${filteredRecipes.length} found.');
-
-      setState(() {
-        _recipes = filteredRecipes;
-      });
-    } catch (e) {
-      print('Error loading CSV: $e');
-    }
+    _fetchRecipes();
   }
 
   @override
@@ -68,37 +84,39 @@ class _RecipeResultsPageState extends State<RecipeResultsPage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: _recipes.isNotEmpty
-            ? ListView.builder(
-                itemCount: _recipes.length,
-                itemBuilder: (context, index) {
-                  return _buildRecipeCard(_recipes[index]);
-                },
-              )
-            : const Center(
-                child: Text(
-                  'No recipes found for your selection.',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-              ),
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _recipes.isNotEmpty
+                ? ListView.builder(
+                    itemCount: _recipes.length,
+                    itemBuilder: (context, index) {
+                      return _buildRecipeCard(_recipes[index]);
+                    },
+                  )
+                : Center(
+                    child: Text(
+                      _errorMessage.isEmpty ? 'No recipes found for your selection.' : _errorMessage,
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ),
       ),
     );
   }
 
-  Widget _buildRecipeCard(List<dynamic> recipe) {
+  Widget _buildRecipeCard(Map<String, dynamic> recipe) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => RecipeDetailPage(
-              name: recipe[0].toString(),
-              imageUrl: recipe[1].toString(),
-              description: recipe[2].toString(),
-              ingredients: recipe[8].toString(),
-              instructions: recipe[7].toString(),
-              time: recipe[6],
-              origin: recipe[9].toString(),
+              name: recipe['name'] ?? 'Unknown Recipe',
+              imageUrl: recipe['image_url'] ?? '',
+              description: recipe['description'] ?? '',
+              ingredients: recipe['final_ingredients'] ?? '',
+              instructions: recipe['instruction'] ?? '',
+              time: recipe['prep_time'] ?? '',
+              origin: recipe['cuisine'] ?? '',
             ),
           ),
         );
@@ -110,13 +128,13 @@ class _RecipeResultsPageState extends State<RecipeResultsPage> {
           child: Row(
             children: [
               Image.network(
-                recipe[1].toString(),
+                recipe['image_url'] ?? '',
                 width: 100,
                 height: 100,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return const Icon(
-                    Icons.wifi_off,
+                    Icons.image_not_supported,
                     size: 100,
                     color: Colors.grey,
                   );
@@ -128,7 +146,7 @@ class _RecipeResultsPageState extends State<RecipeResultsPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      recipe[0].toString(),
+                      recipe['name'] ?? 'Unknown Recipe',
                       style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
@@ -137,18 +155,18 @@ class _RecipeResultsPageState extends State<RecipeResultsPage> {
                         children: [
                           const TextSpan(
                             text: 'Cooking Time: ',
-                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                           TextSpan(
-                            text: '${recipe[6]} minutes',
-                            style: const TextStyle(fontSize: 20),
+                            text: '${recipe['prep_time']} minutes',
+                            style: const TextStyle(fontSize: 16),
                           ),
                         ],
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      recipe[2].toString(),
+                      recipe['description'] ?? '',
                       style: TextStyle(color: Colors.grey[600]),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -171,7 +189,7 @@ class RecipeDetailPage extends StatelessWidget {
   final String ingredients;
   final String instructions;
   final String origin;
-  final int time;
+  final String time;
 
   const RecipeDetailPage({
     super.key,
@@ -204,7 +222,7 @@ class RecipeDetailPage extends StatelessWidget {
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return const Icon(
-                    Icons.wifi_off,
+                    Icons.image_not_supported,
                     size: 100,
                     color: Colors.grey,
                   );
@@ -218,11 +236,11 @@ class RecipeDetailPage extends StatelessWidget {
                   children: [
                     const TextSpan(
                       text: 'Cooking Time: ',
-                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     TextSpan(
                       text: '$time minutes',
-                      style: const TextStyle(fontSize: 20),
+                      style: const TextStyle(fontSize: 16),
                     ),
                   ],
                 ),
@@ -233,11 +251,11 @@ class RecipeDetailPage extends StatelessWidget {
                   children: [
                     const TextSpan(
                       text: 'Origin: ',
-                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     TextSpan(
                       text: origin,
-                      style: const TextStyle(fontSize: 20),
+                      style: const TextStyle(fontSize: 16),
                     ),
                   ],
                 ),
@@ -245,33 +263,24 @@ class RecipeDetailPage extends StatelessWidget {
               const SizedBox(height: 16),
               const Text(
                 'Description:',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
-              Text(
-                description,
-                style: const TextStyle(fontSize: 20),
-              ),
+              Text(description, style: const TextStyle(fontSize: 16)),
               const SizedBox(height: 16),
               const Text(
                 'Ingredients:',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
-              Text(
-                ingredients,
-                style: const TextStyle(fontSize: 20),
-              ),
+              Text(ingredients, style: const TextStyle(fontSize: 16)),
               const SizedBox(height: 16),
               const Text(
                 'Instructions:',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
-              Text(
-                instructions,
-                style: const TextStyle(fontSize: 20),
-              ),
+              Text(instructions, style: const TextStyle(fontSize: 16)),
             ],
           ),
         ),
