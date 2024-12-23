@@ -1,6 +1,6 @@
 {
-    "name": "recipe_picker",
-    "short_name": "recipe_picker",
+    "name": "recipepicker",
+    "short_name": "recipepicker",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
