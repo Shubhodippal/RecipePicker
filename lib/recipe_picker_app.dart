@@ -6,7 +6,7 @@ class RecipePickerApp extends StatelessWidget {
 
   Future<void> _loadData() async {
     // Simulate a delay for loading data
-    // This function can be used to load any necessary data
+    await Future.delayed(const Duration(seconds: 2));
   }
 
   @override
