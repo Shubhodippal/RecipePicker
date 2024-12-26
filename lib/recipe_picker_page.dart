@@ -155,6 +155,71 @@ class _RecipePickerPageState extends State<RecipePickerPage> {
     },
   };
 
+  final Map<String, Map<String, List<String>>> recipes = {
+    'Lunch': {
+      'Indian': ['Vegetarian', 'Non Vegetarian', 'Eggetarian', 'Diabetic Friendly', 'Vegan'],
+      'North Indian': ['Vegetarian', 'No Onion No Garlic (Sattvic)', 'Non Vegetarian', 'Eggetarian', 'Diabetic Friendly', 'Vegan'],
+      'South Indian': ['Vegetarian', 'Non Vegetarian', 'Eggetarian', 'Diabetic Friendly'],
+      'East Indian': ['Vegetarian', 'No Onion No Garlic (Sattvic)', 'Non Vegetarian', 'Eggetarian', 'Diabetic Friendly'],
+      'West Indian': ['Vegetarian', 'Non Vegetarian', 'Eggetarian'],
+      'Other Regional Indian': ['Vegetarian', 'Non Vegetarian'],
+      'Asian': ['Vegetarian', 'Non Vegetarian'],
+      'Mughlai': ['Vegetarian', 'Non Vegetarian'],
+      'Parsi': ['Vegetarian'],
+      'Indo Chinese': ['Vegetarian', 'Eggetarian'],
+      'Continental': ['Vegetarian'],
+      'Middle Eastern': ['Vegetarian', 'Eggetarian'],
+    },
+    'Dinner': {
+      'Indian': ['Vegetarian', 'Non Vegetarian', 'Eggetarian', 'Diabetic Friendly', 'Vegan'],
+      'North Indian': ['Vegetarian', 'No Onion No Garlic (Sattvic)', 'Non Vegetarian', 'Eggetarian', 'Diabetic Friendly', 'Vegan'],
+      'South Indian': ['Vegetarian', 'Non Vegetarian', 'Eggetarian', 'Diabetic Friendly'],
+      'East Indian': ['Vegetarian', 'No Onion No Garlic (Sattvic)', 'Non Vegetarian', 'Eggetarian', 'Diabetic Friendly'],
+      'West Indian': ['Vegetarian', 'Non Vegetarian', 'Eggetarian'],
+      'Other Regional Indian': ['Vegetarian', 'Non Vegetarian'],
+      'Asian': ['Vegetarian', 'Non Vegetarian'],
+      'Mughlai': ['Vegetarian', 'Non Vegetarian'],
+      'Parsi': ['Vegetarian'],
+      'Fusion': ['Eggetarian'],
+      'Middle Eastern': ['Vegetarian'],
+    },
+    'Dessert': {
+      'Indian': ['Vegetarian', 'Eggetarian', 'Vegan'],
+      'North Indian': ['Vegetarian', 'No Onion No Garlic (Sattvic)', 'Gluten Free'],
+      'South Indian': ['Vegetarian', 'Gluten Free'],
+      'East Indian': ['Vegetarian'],
+      'West Indian': ['Vegetarian', 'Eggetarian'],
+      'Other Regional Indian': ['Vegetarian'],
+      'Asian': ['Eggetarian'],
+      'Mughlai': ['Vegetarian'],
+      'Parsi': ['Eggetarian'],
+      'Fusion': ['Vegetarian'],
+      'Middle Eastern': ['Vegetarian'],
+    },
+    'Breakfast': {
+      'Indian': ['Vegetarian', 'Eggetarian', 'Diabetic Friendly', 'Vegan', 'Gluten Free'],
+      'North Indian': ['Vegetarian', 'Eggetarian', 'Diabetic Friendly', 'Vegan', 'Gluten Free'],
+      'South Indian': ['Vegetarian', 'Eggetarian', 'Diabetic Friendly', 'Vegan', 'Gluten Free'],
+      'East Indian': ['Vegetarian', 'Diabetic Friendly', 'Gluten Free'],
+      'West Indian': ['No Onion No Garlic (Sattvic)', 'Diabetic Friendly'],
+      'Other Regional Indian': ['Vegetarian'],
+      'Parsi': ['Eggetarian'],
+      'Indo Chinese': ['Vegetarian'],
+      'Fusion': ['Vegetarian', 'Diabetic Friendly'],
+    },
+    'Snack': {
+      'Indian': ['Vegetarian'],
+      'North Indian': ['Vegetarian'],
+      'South Indian': ['Vegetarian', 'Eggetarian', 'Diabetic Friendly', 'Gluten Free'],
+      'East Indian': ['Vegetarian', 'Diabetic Friendly'],
+      'West Indian': ['Vegetarian'],
+      'Other Regional Indian': ['Vegetarian'],
+      'Asian': ['Eggetarian'],
+      'Parsi': ['Vegetarian'],
+      'Fusion': ['Vegetarian'],
+    },
+  };
+
   String? selectedCourse;
   String? selectedCuisine;
   String? selectedDiet;

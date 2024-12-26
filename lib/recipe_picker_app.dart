@@ -4,6 +4,11 @@ import 'recipe_picker_page.dart';
 class RecipePickerApp extends StatelessWidget {
   const RecipePickerApp({super.key});
 
+  Future<void> _loadData() async {
+    // Simulate a delay for loading data
+    // This function can be used to load any necessary data
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -20,7 +25,20 @@ class RecipePickerApp extends StatelessWidget {
           labelLarge: TextStyle(color: Colors.white, fontSize: 16),
         ),
       ),
-      home: const RecipePickerPage(),
+      home: FutureBuilder<void>(
+        future: _loadData(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Scaffold(
+              body: Center(
+                child: Image.asset('assets/loading.gif'), // Add your loading GIF here
+              ),
+            );
+          } else {
+            return const RecipePickerPage();
+          }
+        },
+      ),
     );
   }
 }
